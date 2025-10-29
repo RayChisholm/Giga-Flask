@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Zendesk Bulk Tools{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Welcome Banner -->
+    <div class="welcome-section mb-5">
+        <div class="container">
+            <div class="row align-items-center py-4">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold mb-2">
+                        <i class="bi bi-speedometer2 me-2"></i>
+                        Welcome back, {{ current_user.username }}!
+                    </h1>
+                    <p class="lead mb-0 opacity-90">
+                        Streamline your Zendesk workflow with powerful bulk operations
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    {% if current_user.is_admin() %}
+                    <a href="{{ url_for('admin.index') }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-gear me-2"></i>Admin Panel
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    {% if tools_by_category %}
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card text-center stat-card border-primary">
+                <div class="card-body">
+                    <i class="bi bi-tools text-primary fs-1 mb-2"></i>
+                    <h3 class="mb-0">{{ tools_by_category.values()|map('length')|sum }}</h3>
+                    <p class="text-muted mb-0">Available Tools</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center stat-card border-success">
+                <div class="card-body">
+                    <i class="bi bi-check-circle text-success fs-1 mb-2"></i>
+                    <h3 class="mb-0">{{ tools_by_category|length }}</h3>
+                    <p class="text-muted mb-0">Categories</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center stat-card border-info">
+                <div class="card-body">
+                    <i class="bi bi-lightning text-info fs-1 mb-2"></i>
+                    <h3 class="mb-0">Quick</h3>
+                    <p class="text-muted mb-0">& Easy to Use</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if tools_by_category %}
+        {% for category, tools in tools_by_category.items() %}
+        <!-- Category Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="category-header mb-3">{{ category }}</h3>
+            </div>
+        </div>
+
+        <!-- Tools Grid -->
+        <div class="row mb-5">
+            {% for tool in tools %}
+            <div class="col-md-4 col-lg-4 mb-4">
+                <div class="card tool-card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-wrench-adjustable text-primary me-2"></i>
+                                    {{ tool.name }}
+                                </h5>
+                                {% if tool.requires_admin %}
+                                <span class="badge bg-danger" data-bs-toggle="tooltip" title="Admin access required">
+                                    <i class="bi bi-shield-lock"></i>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="card-text text-muted flex-grow-1">{{ tool.description }}</p>
+                        <div class="mt-auto">
+                            <a href="{{ url_for('tools.execute_tool', slug=tool.slug) }}"
+                               class="btn btn-primary w-100">
+                                <i class="bi bi-play-fill me-1"></i>Launch Tool
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- No Tools Available -->
+        <div class="row">
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h3>No Tools Available</h3>
+                    <p class="text-muted">
+                        No tools are currently available. Please contact your administrator.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Help Section -->
+    <div class="row mt-5">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-rocket-takeoff text-primary fs-1"></i>
+                    </div>
+                    <h5 class="card-title">Getting Started</h5>
+                    <p class="card-text text-muted">
+                        Click on any tool above to get started. Each tool will guide you through
+                        the required inputs and show you the results.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-shield-check text-success fs-1"></i>
+                    </div>
+                    <h5 class="card-title">Safe & Reliable</h5>
+                    <p class="card-text text-muted">
+                        All operations are validated before execution. Review results before
+                        taking further action.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-download text-info fs-1"></i>
+                    </div>
+                    <h5 class="card-title">Export Results</h5>
+                    <p class="card-text text-muted">
+                        Export your results to CSV or JSON for further analysis and
+                        record-keeping.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-keyboard me-2"></i>Keyboard Shortcuts
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <span class="badge bg-secondary me-2">⌘K</span> Dashboard
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <span class="badge bg-secondary me-2">⌘⇧A</span> Admin Panel
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <span class="badge bg-secondary me-2">⌘⇧D</span> Dark Mode
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <span class="badge bg-secondary me-2">⌘/</span> Focus Search
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tool.name }} - Zendesk Bulk Tools{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">{{ tool.name }}</li>
+                </ol>
+            </nav>
+            <h1 class="display-6">
+                <i class="bi bi-wrench-adjustable text-primary"></i>
+                {{ tool.name }}
+                {% if tool.requires_admin %}
+                <span class="badge bg-danger">Admin</span>
+                {% endif %}
+            </h1>
+            <p class="lead text-muted">{{ tool.description }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Tool Form -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-input-cursor me-2"></i>Tool Input</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% for field in form_fields %}
+                        <div class="mb-3">
+                            <label for="{{ field.name }}" class="form-label">
+                                {{ field.label }}
+                                {% if field.required %}
+                                <span class="text-danger">*</span>
+                                {% endif %}
+                            </label>
+
+                            {% if field.type == 'text' %}
+                                <input type="text"
+                                       class="form-control"
+                                       id="{{ field.name }}"
+                                       name="{{ field.name }}"
+                                       placeholder="{{ field.placeholder or '' }}"
+                                       {% if field.required %}required{% endif %}>
+
+                            {% elif field.type == 'textarea' %}
+                                <textarea class="form-control"
+                                         id="{{ field.name }}"
+                                         name="{{ field.name }}"
+                                         rows="4"
+                                         placeholder="{{ field.placeholder or '' }}"
+                                         {% if field.required %}required{% endif %}></textarea>
+
+                            {% elif field.type == 'number' %}
+                                <input type="number"
+                                       class="form-control"
+                                       id="{{ field.name }}"
+                                       name="{{ field.name }}"
+                                       placeholder="{{ field.placeholder or '' }}"
+                                       {% if field.required %}required{% endif %}>
+
+                            {% elif field.type == 'select' %}
+                                <select class="form-select"
+                                        id="{{ field.name }}"
+                                        name="{{ field.name }}"
+                                        {% if field.required %}required{% endif %}>
+                                    <option value="">Choose...</option>
+                                    {% for option in field.options %}
+                                    <option value="{{ option.value }}">{{ option.label }}</option>
+                                    {% endfor %}
+                                </select>
+
+                            {% elif field.type == 'checkbox' %}
+                                <div class="form-check">
+                                    <input type="checkbox"
+                                           class="form-check-input"
+                                           id="{{ field.name }}"
+                                           name="{{ field.name }}"
+                                           value="true">
+                                    <label class="form-check-label" for="{{ field.name }}">
+                                        {{ field.label }}
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-play-fill me-1"></i>Execute Tool
+                        </button>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Sidebar -->
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-info-circle text-info me-2"></i>
+                        Tool Information
+                    </h5>
+                    <dl class="mb-0">
+                        <dt>Category</dt>
+                        <dd>{{ tool.category }}</dd>
+
+                        <dt>Access Level</dt>
+                        <dd>
+                            {% if tool.requires_admin %}
+                            <span class="badge bg-danger">Admin Only</span>
+                            {% else %}
+                            <span class="badge bg-success">All Users</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            {% if tool.get_export_formats() %}
+            <div class="card bg-light mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-download text-success me-2"></i>
+                        Export Available
+                    </h6>
+                    <p class="card-text small mb-2">
+                        This tool supports exporting results in:
+                    </p>
+                    <div class="d-flex gap-1 flex-wrap">
+                        {% for format in tool.get_export_formats() %}
+                        <span class="badge bg-success">{{ format.upper() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    {% if results %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header {% if results.success %}bg-success{% else %}bg-danger{% endif %} text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-{% if results.success %}check-circle{% else %}x-circle{% endif %} me-2"></i>
+                        Results
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Message and Export Buttons -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="alert alert-{% if results.success %}success{% else %}danger{% endif %} mb-0 flex-grow-1">
+                            {{ results.message }}
+                        </div>
+
+                        {% if results.success and results.data and tool.get_export_formats() %}
+                        <div class="ms-3">
+                            <div class="dropdown">
+                                <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown">
+                                    <i class="bi bi-download me-1"></i>Export
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                    {% for format in tool.get_export_formats() %}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('tools.export_tool_results', slug=tool.slug, format=format) }}">
+                                            <i class="bi bi-file-earmark-{{ 'spreadsheet' if format == 'csv' else 'code' }} me-2"></i>
+                                            Export as {{ format.upper() }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Display results data -->
+                    {% if results.data %}
+                        {% if results.data.macros %}
+                        <!-- Statistics Cards -->
+                        {% if results.data.count > 0 %}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body text-center py-3">
+                                        <h3 class="mb-0">{{ results.data.count }}</h3>
+                                        <small>Total Macros</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body text-center py-3">
+                                        <h3 class="mb-0">{{ results.data.macros|selectattr('active')|list|length }}</h3>
+                                        <small>Active</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-secondary text-white">
+                                    <div class="card-body text-center py-3">
+                                        <h3 class="mb-0">{{ results.data.macros|rejectattr('active')|list|length }}</h3>
+                                        <small>Inactive</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Macro Search Results -->
+                        <h5 class="mb-3">Found Macros</h5>
+                        {% if results.data.count > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Macro Title</th>
+                                        <th>Status</th>
+                                        <th>Matching Actions</th>
+                                        <th>Link</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for macro in results.data.macros %}
+                                    <tr>
+                                        <td><strong>{{ macro.title }}</strong></td>
+                                        <td>
+                                            {% if macro.active %}
+                                            <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <ul class="mb-0">
+                                                {% for action in macro.matching_actions %}
+                                                <li><code>{{ action.field }}</code>: {{ action.value }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <a href="{{ macro.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-box-arrow-up-right"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No macros found matching your search.</p>
+                        {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

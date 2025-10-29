@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Registered Tools - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.index') }}">Admin</a></li>
+                    <li class="breadcrumb-item active">Registered Tools</li>
+                </ol>
+            </nav>
+            <h1 class="display-6">
+                <i class="bi bi-tools text-primary"></i>
+                Registered Tools
+            </h1>
+            <p class="text-muted">All available tools in the system</p>
+        </div>
+    </div>
+
+    {% if tools_by_category %}
+        {% for category, tools in tools_by_category.items() %}
+        <!-- Category Section -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <h4 class="category-header">{{ category }}</h4>
+            </div>
+        </div>
+
+        <!-- Tools List -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Tool Name</th>
+                                    <th>Slug</th>
+                                    <th>Description</th>
+                                    <th>Access Level</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tool in tools %}
+                                <tr>
+                                    <td><strong>{{ tool.name }}</strong></td>
+                                    <td><code>{{ tool.slug }}</code></td>
+                                    <td>{{ tool.description }}</td>
+                                    <td>
+                                        {% if tool.requires_admin %}
+                                        <span class="badge bg-danger">Admin Only</span>
+                                        {% else %}
+                                        <span class="badge bg-success">All Users</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('tools.execute_tool', slug=tool.slug) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-box-arrow-up-right"></i> Open
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    No tools are currently registered in the system.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Info Box -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-info-circle text-info me-2"></i>
+                        About Tool Registration
+                    </h5>
+                    <p class="card-text mb-0">
+                        Tools are automatically registered when they inherit from <code>BaseTool</code>
+                        and use the <code>@ToolRegistry.register</code> decorator. New tools can be added
+                        by creating a new Python file in the <code>app/tools/implementations/</code> directory.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

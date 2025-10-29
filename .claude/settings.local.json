@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Read(//Users/justin/Desktop/Claude/**)",
+      "Bash(source venv/bin/activate)",
+      "Bash(flask db migrate:*)",
+      "Bash(flask db upgrade:*)",
+      "Bash(redis-cli:*)",
+      "Bash(brew:*)",
+      "Bash(pip install:*)",
+      "Bash(python -c:*)",
+      "Bash(flask run)",
+      "Bash(celery:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

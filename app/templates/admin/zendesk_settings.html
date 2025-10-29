@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Zendesk Settings - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.index') }}">Admin</a></li>
+                    <li class="breadcrumb-item active">Zendesk Settings</li>
+                </ol>
+            </nav>
+            <h1 class="display-6">
+                <i class="bi bi-cloud-upload text-primary"></i>
+                Zendesk API Settings
+            </h1>
+            <p class="text-muted">Configure your Zendesk API credentials</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Settings Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.zendesk_settings') }}">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.subdomain.label(class="form-label") }}
+                            {{ form.subdomain(class="form-control" + (" is-invalid" if form.subdomain.errors else ""),
+                               placeholder="your-company") }}
+                            <div class="form-text">
+                                Your Zendesk subdomain (e.g., 'mycompany' from mycompany.zendesk.com)
+                            </div>
+                            {% if form.subdomain.errors %}
+                                <div class="invalid-feedback">{{ form.subdomain.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""),
+                               placeholder="admin@example.com") }}
+                            <div class="form-text">
+                                Email address associated with your Zendesk API token
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">{{ form.email.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.api_token.label(class="form-label") }}
+                            {{ form.api_token(class="form-control" + (" is-invalid" if form.api_token.errors else ""),
+                               placeholder="Enter API token") }}
+                            <div class="form-text">
+                                Your Zendesk API token (find it in Admin &gt; Channels &gt; API)
+                            </div>
+                            {% if form.api_token.errors %}
+                                <div class="invalid-feedback">{{ form.api_token.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                            {% if has_settings %}
+                            <a href="{{ url_for('admin.test_zendesk') }}" class="btn btn-outline-success">
+                                <i class="bi bi-check-circle me-1"></i>Test Connection
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('admin.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Sidebar -->
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-question-circle text-info me-2"></i>
+                        Getting Your API Token
+                    </h5>
+                    <ol class="card-text small">
+                        <li>Log into your Zendesk account</li>
+                        <li>Go to Admin Center &gt; Apps and integrations &gt; APIs &gt; Zendesk API</li>
+                        <li>Click "Add API token"</li>
+                        <li>Copy the generated token</li>
+                        <li>Paste it here</li>
+                    </ol>
+                    <hr>
+                    <p class="card-text small">
+                        <i class="bi bi-shield-lock text-warning me-1"></i>
+                        <strong>Security Note:</strong> Your API token will be stored securely.
+                        Never share it with unauthorized users.
+                    </p>
+                </div>
+            </div>
+
+            {% if has_settings %}
+            <div class="card bg-success text-white mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Status
+                    </h6>
+                    <p class="card-text mb-0">
+                        Zendesk credentials are configured
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

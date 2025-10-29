@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Zendesk Bulk Tools{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="bi bi-gear-fill text-primary"></i>
+                Admin Panel
+            </h1>
+            <p class="lead text-muted">Manage application settings and users</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">Total Users</h6>
+                    <h2 class="mb-0">{{ user_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">Admins</h6>
+                    <h2 class="mb-0">{{ admin_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">Registered Tools</h6>
+                    <h2 class="mb-0">{{ tool_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card {% if zendesk_configured %}bg-success{% else %}bg-warning{% endif %} text-white">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">Zendesk Status</h6>
+                    <h2 class="mb-0">
+                        {% if zendesk_configured %}
+                        <i class="bi bi-check-circle"></i>
+                        {% else %}
+                        <i class="bi bi-exclamation-circle"></i>
+                        {% endif %}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-3">Quick Actions</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Zendesk Configuration -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-cloud-upload text-primary me-2"></i>
+                        Zendesk Configuration
+                    </h5>
+                    <p class="card-text">
+                        Configure Zendesk API credentials to enable tool functionality.
+                        {% if zendesk_configured %}
+                        <span class="badge bg-success">Configured</span>
+                        {% else %}
+                        <span class="badge bg-warning">Not Configured</span>
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('admin.zendesk_settings') }}" class="btn btn-primary">
+                        <i class="bi bi-gear me-1"></i>
+                        Manage Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-people text-success me-2"></i>
+                        User Management
+                    </h5>
+                    <p class="card-text">
+                        Create, edit, and manage user accounts and permissions.
+                        Currently {{ user_count }} user(s) registered.
+                    </p>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-success">
+                        <i class="bi bi-person-plus me-1"></i>
+                        Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registered Tools -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-tools text-info me-2"></i>
+                        Registered Tools
+                    </h5>
+                    <p class="card-text">
+                        View all registered tools and their configurations.
+                        Currently {{ tool_count }} tool(s) available.
+                    </p>
+                    <a href="{{ url_for('admin.tools') }}" class="btn btn-info">
+                        <i class="bi bi-list me-1"></i>
+                        View Tools
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-house-door text-secondary me-2"></i>
+                        Main Dashboard
+                    </h5>
+                    <p class="card-text">
+                        Return to the main dashboard to use the available tools.
+                    </p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
